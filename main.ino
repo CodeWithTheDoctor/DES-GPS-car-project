@@ -120,6 +120,7 @@ void loop()
     Serial.println(gps.altitude.feet());
     Serial.println("");
 
+    delay(1000000);
     check_direction();
     }
   

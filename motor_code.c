@@ -48,6 +48,7 @@ void backwards(int power) {
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   
+  
   analogWrite(enB, power);
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
@@ -79,14 +80,27 @@ void right(int power) {
   digitalWrite(in4, HIGH);
 }
 
+void stop() {
+  analogWrite(enA, 0);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  
+  analogWrite(enB, 0);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+} 
+
+
 void loop() {
     int power = 100;
-    forwards(power);
-    delay(5000);
-    backwards(power);
-    delay(5000);
-    left(power);
-    delay(5000);
-    right(power);
-    delay(5000);
+    forwards(100);
+    delay(1000);
+    right(50);
+    delay(400);
+    forwards(100);
+    delay(1000);
+    right(50);
+    delay(400);
+    stop();
+    delay(500);
 }

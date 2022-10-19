@@ -67,7 +67,7 @@ void right() {
   delay(100);
 }
 
-void stop() {
+void stop(int amount) {
   analogWrite(enA, 0);
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
@@ -75,6 +75,7 @@ void stop() {
   analogWrite(enB, 0);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
+  delay(amount);
 }
 
 /*
@@ -108,14 +109,18 @@ void rightLean(int amount) {
   delay(5000);
 }
 
+void uTurn() {
+  curve(16);
+  delay(2800);
+
+}
+
 void loop() {
-    delay(500);
-    for(int i = 0; i < 10; i++) {
-      rightLean(500);
-      stop();
-      delay(800);
-      leftLean(500);
-      stop();
-      delay(800);
-    }
+//      rightLean(1000);
+//      stop(800);
+//      leftLean(1000);
+//      stop(800);
+  uTurn();
+  stop(800);
+    
 }

@@ -5,9 +5,11 @@
 
 //Configure the destination here
 
-#define LATITUDE 00.00
-#define LONGITUDE 00.00
+#define LATITUDE -31.979984
+#define LONGITUDE 115.817852
 
+SoftwareSerial serial_connection(10, 9); //RX=pin 10, TX=pin 9 (Connect GPS modules RX to the Arduino's TX input and the modules TX to ardunio's RX input).
+TinyGPSPlus gps;//This is the GPS object that will pretty much do all the grunt work with the NMEA data
 
 
 /** NOTE:  I have been uploading through the arduino IDE, unsure if certain 
@@ -26,7 +28,9 @@ int in4 = 7;
 
 int power = 100;
 
-
+double home[2];
+double rC[2];
+double rA[2];
 
 
 void forwards() {
@@ -58,7 +62,7 @@ void left() {
 }
 
 void right() {
-   analogWrite(enA, power - 30);
+  analogWrite(enA, power - 30);
   // right wheel
   analogWrite(enB, 0);
   delay(100);
@@ -111,6 +115,7 @@ void rightLean(int amount) {
   delay(5000);
 }
 
+
 void setup() {
   // NOTE: enA, enB are connected to analog pins, can out anything from 0 to 1.
   pinMode(enA, OUTPUT);
@@ -152,9 +157,12 @@ void setup() {
   delay(5000);
 
   // Initialising variables for the car routing
-  double home[2] = [gps.satellites.lat(), gps.satellites.lng()];
-  double rC[2] = [LATITUDE, LONGITUDE]; 
-  double rA[2] = [C[0], C[1]];
+  home[0] = gps.location.lat();
+  home[1] = gps.location.lng();
+  rC[0] = LATITUDE;
+  rC[1] = LONGITUDE;
+  rA[0] = rC[0];
+  rA[1] = rC[1];
 
   // Code to Start driving forward
   forwards();
@@ -180,36 +188,29 @@ void loop() {
   {
 
     delay(2000);
-    double rB[2] = [gps.satellites.lat(), gps.satellites.lng()];
+    double rB[2] = {gps.location.lat(), gps.location.lng()};
 
-    double rAB[2] = [rB[0] - rA[0], rB[1] - rB[1]];
-    double rAC[2] = [rC[0] - rA[0], rC[1] - rA[1]];
-    double rBC[2] = [rC[0] - rB[0], rC[1] - rB[1]];
+    double rAB[2] = {rB[0] - rA[0], rB[1] - rB[1]};
+    double rAC[2] = {rC[0] - rA[0], rC[1] - rA[1]};
+    double rBC[2] = {rC[0] - rB[0], rC[1] - rB[1]};
 
-    double a = sqrt(rAB[0]**2 + rAB[1]**2);
-    double b = sqrt(rBC[0]**2 + rBC[1]**2);
-    double c = sqrt(rAC[0]**2 + rAC[1]**2);
+    double a = sqrt(rAB[0]*rAB[0] + rAB[1]*rAB[1]);
+    double b = sqrt(rBC[0]*rBC[0] + rBC[1]*rBC[1]);
+    double c = sqrt(rAC[0]*rAC[0] + rAC[1]*rAC[1]);
 
     //Calculating the angle (in Radians)
-
-    double angle = acos((a**2 - b**2 + c**2)/(2*a*c));
+    double angle = acos((a*a - b*b + c*c)/(2*a*c));
 
     // Update the rA value to that of current positon)
-    rA = [rB[0], rB[1]]; 
+    rA[0] = rB[0];
+    rA[1] = rB[1];
 
     // Checking which manuever to execute based on angle and the location of the destination coordinate relative to current position, rB.
     int angleFluctionThreshold = 0.0872665; // in Radians
 
-    if(angle < 0 + angleFluctionThreshold) {
-      continue;
-    }
-
-    else if (rAB[0] > rAC[0]) leftLean(500); 
+    if ((angle > 0 + angleFluctionThreshold) && (rAB[0] > rAC[0])) leftLean(500); 
     // else if(rAB[1] > rAC[1]) rightLean(2);
     else rightLean(500);
-
-
-
 
 
     //Get the latest info from the gps object which it derived from the data sent by the GPS unit

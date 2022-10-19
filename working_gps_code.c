@@ -22,22 +22,22 @@ void setup() {
 
 // sets lattitude, longitude vars.
 void readCoords() {
-    while(1) {
-        while (serial_connection.available() > 0) { 
-            gps.encode(serial_connection.read()); // idk what this does but it doesnt work without.
-        }
-
-        if (gps.location.isUpdated()) {
-            lattitude=gps.location.lat();
-            longitude=gps.location.lng();
-            break;
-        }
+  while(1) {
+    while (serial_connection.available() > 0) { 
+      gps.encode(serial_connection.read()); // idk what this does but it doesnt work without.
     }
+
+    if (gps.location.isUpdated()) {
+      lattitude=gps.location.lat();
+      longitude=gps.location.lng();
+      break;
+    }
+  }
 }
 
 void loop() {
-    readCoords();
-    Serial.print("LATTITUDE="); Serial.println(lattitude,6);
-    Serial.print("LONGITUDE="); Serial.println(longitude,6);
-    delay(1000);
+  readCoords();
+  Serial.print("LATTITUDE="); Serial.println(lattitude,6);
+  Serial.print("LONGITUDE="); Serial.println(longitude,6);
+  delay(1000);
 }

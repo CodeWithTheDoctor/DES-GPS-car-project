@@ -12,6 +12,7 @@ int in2 = 4;
 int in3 = 8;
 int in4 = 7;
 
+int power = 100;
 
 
 void setup() {
@@ -25,25 +26,11 @@ void setup() {
   // initialise motors, off.
 }
 
-/*
-* @param int power, should be [0,255] controls power of motors.
-*/
-void forwards(int power) {
-  //right wheel
-  analogWrite(enA, power);
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  
-  // left wheel
-  analogWrite(enB, power);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+void forwards() {
+  curve(2);
 }
 
-/*
-* @param int power, should be [0,255] controls power of motors.
-*/
-void backwards(int power) {
+void backwards() {
   analogWrite(enA, power);
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
@@ -54,30 +41,30 @@ void backwards(int power) {
   digitalWrite(in4, HIGH);
 }
 
-/*
-* @param int power, should be [0,255] controls power of motors.
-*/
-void left(int power) {
-  analogWrite(enA, power);
+void left() {
+  analogWrite(enA, 0);
+  // right wheel
+  analogWrite(enB, power - 30);
+  delay(100);
   digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  
-  analogWrite(enB, power);
+  digitalWrite(in2, LOW);
+
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
+  delay(100);
 }
 
-/*
-* @param int power, should be [0,255] controls power of motors.
-*/
-void right(int power) {
-  analogWrite(enA, power);
+void right() {
+   analogWrite(enA, power - 30);
+  // right wheel
+  analogWrite(enB, 0);
+  delay(100);
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
-  
-  analogWrite(enB, power);
+
   digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  digitalWrite(in4, LOW);
+  delay(100);
 }
 
 void stop() {
@@ -88,19 +75,47 @@ void stop() {
   analogWrite(enB, 0);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
-} 
+}
 
+/*
+ * @param amount, positive curve left, negative curve right.
+ */
+void curve(int amount) {
+  // left wheel
+  analogWrite(enA, power - amount);
+  // right wheel
+  analogWrite(enB, power + amount);
+  delay(100);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  delay(100);
+}
+
+void leftLean(int amount) {
+  curve(12);
+  delay(amount);
+  forwards();
+  delay(5000);
+}
+
+void rightLean(int amount) {
+  curve(-10);
+  delay(amount);
+  forwards();
+  delay(5000);
+}
 
 void loop() {
-    int power = 100;
-    forwards(100);
-    delay(1000);
-    right(50);
-    delay(400);
-    forwards(100);
-    delay(1000);
-    right(50);
-    delay(400);
-    stop();
     delay(500);
+    for(int i = 0; i < 10; i++) {
+      rightLean(500);
+      stop();
+      delay(800);
+      leftLean(500);
+      stop();
+      delay(800); 
+    }
 }
